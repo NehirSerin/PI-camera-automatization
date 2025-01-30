@@ -66,7 +66,7 @@ def get_kernels(pidevice, camera):
 
 # SAVE THE BUFFER TO FILE WITH OPTIMAL FOCUS
 
-def save_buffer_to_tiff_with_focus(camera, pidevice, z_range=(-0.5, 0.5), z_step=0.1): # Output_dir parameter might be efficient for some implementations
+def save_buffer_to_tiff_with_focus(camera, pidevice, z_range=(0.0, 1.0), z_step=0.1): # Output_dir parameter might be efficient for some implementations
     """
     Save captured images to TIFF files with focus adjustment before saving each image.
     :param camera: pylon.InstantCamera object
