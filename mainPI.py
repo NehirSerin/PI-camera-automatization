@@ -122,6 +122,71 @@ def autofocus(pidevice, camera, z_step=0.005):
 
     return optimal_z
 
+from pipython import GCSDevice, pitools
+from pypylon import pylon
+import cv2
+import numpy as np
+import os
+import glob
+
+def find_sharpest_image(fpath):
+    
+    folder_path = r"test"  # Make sure this path is correct
+    image_paths = glob.glob(os.path.join(folder_path, "*.tiff"))
+
+    # Loop through each image
+    for img_path in image_paths:
+        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+
+        if img is None:
+           print(f"Warning: Could not read {img_path}")
+           continue  # Skip the invalid image
+
+
+    
+    if not image_paths:
+        print("No TIFF images found in the folder!")
+        return None, None, None
+
+    sharpness_scores = []
+    images = []
+    
+    for img_path in image_paths:
+        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+
+        if img is None:
+            print(f" Warning: Could not read {img_path}")
+            continue  
+
+        images.append(img)
+        edges = cv2.Canny(img, threshold1=100, threshold2=200)
+        sharpness = np.sum(edges)
+
+    # Calculate the sharpness score as the sum of the magnitudes
+
+        sharpness_scores.append(sharpness)
+
+    if not images:
+        print("No valid images were loaded!")
+        return None, None, None
+
+    # Find the sharpest image
+    best_index = np.argmax(sharpness_scores)
+    best_image = images[best_index]
+    best_image_name = os.path.basename(image_paths[best_index])
+    best_score = sharpness_scores[best_index]
+
+    print(f"\n Sharpest Image: {best_image_name} with Score = {best_score:.2f}")
+    
+    return best_image, best_image_name, best_score
+
+
+
+# Find the sharpest image
+folder_path = r"test"
+
+sharpest_img, sharpest_name, sharpness_score = find_sharpest_image(folder_path)
+
 
 if __name__ == "__main__":
     main()
