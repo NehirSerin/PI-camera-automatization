@@ -9,7 +9,7 @@ from time import sleep
 
 # CONSTANTS
 CONTROLLERNAME = "C-884.DB"  # 'C-884' will also work
-STAGES = ["MM-126.PD", "M-126.PD2", "M-126.PD2", "NOSTAGE"]
+STAGES = ["M-126.PD2", "M-126.PD2", "M-126.PD2", "NOSTAGE"]
 REFMODES = ["FNL", "FRF"]
 SERIALNUM = "0000000000"
 
@@ -91,7 +91,7 @@ def save_buffer_to_tiff_with_focus(camera, pidevice, z_range=(0.0, 1.0), z_step=
             
 # FIND THE OPTIMAL Z-FOCUS
 
-def autofocus(pidevice, camera, z_range=(-0.5, 0.5), z_step=0.1):
+def autofocus(pidevice, camera, z_step=0.005):
     """
     Adjust focus by scanning through z positions and maximizing sharpness.
     :param pidevice: GCSDevice object controlling the stage
@@ -102,13 +102,13 @@ def autofocus(pidevice, camera, z_range=(-0.5, 0.5), z_step=0.1):
     
     """
     current_z = pidevice.qPOS(AXES["z"])[AXES["z"]]
+    z_range=(current_z - z_step*10, current_z + z_step*10)
     z_positions = np.arange(current_z + z_range[0], current_z + z_range[1], z_step)
     sharpness_scores = []
 
     for z in z_positions:
         pidevice.MOV(AXES["z"], z)
         pitools.waitontarget(pidevice, axes=(AXES["z"],))
-        sleep(0.1)
 
         result = camera.GrabOne(100)
         img = result.GetArray()
